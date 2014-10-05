@@ -21,6 +21,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="jtalks" uri="http://www.jtalks.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="C" uri="http://java.sun.com/jsp/jstl/core" %>
 <head>
   <meta name="description" content="<c:out value="${cmpDescription}"/>">
   <title>
@@ -80,7 +81,15 @@
           </td>
         </tr>
         <c:forEach var="branch" items="${section.branches}" varStatus="i">
-          <jtalks:hasPermission targetId='${branch.id}' targetType='BRANCH' permission='BranchPermission.VIEW_TOPICS'>
+
+          <c:set var="showThisBranch" value="true" />
+          <c:if test="${sessionScope.adminMode != true}">
+            <c:set var="showThisBranch" value="false" />
+            <jtalks:hasPermission targetId='${branch.id}' targetType='BRANCH' permission='BranchPermission.VIEW_TOPICS'>
+              <c:set var="showThisBranch" value="true" />
+            </jtalks:hasPermission>
+          </c:if>
+          <c:if test="${showThisBranch == true}" >
             <tr>
                 <%--TODO: fix in milstone 2--%>
                 <%--<sec:authorize access="isAuthenticated()">--%>
@@ -102,14 +111,14 @@
               <td class="title-col">
                 <div class="pull-left">
                   <h3 class="h-nostyle">
-                  <c:if test="${sessionScope.adminMode == true}">
+                    <c:if test="${sessionScope.adminMode == true}">
                     <a class="branch-title" href="#" id='branchLabel${branch.id}'>
-                  </c:if>
-                  <c:if test="${sessionScope.adminMode != true}">
-                    <a class="branch-title" href="${pageContext.request.contextPath}/branches/${branch.id}">
-                  </c:if>
-                    <c:out value="${branch.name}"/>
-                    </a>
+                      </c:if>
+                      <c:if test="${sessionScope.adminMode != true}">
+                      <a class="branch-title" href="${pageContext.request.contextPath}/branches/${branch.id}">
+                        </c:if>
+                        <c:out value="${branch.name}"/>
+                      </a>
                   </h3>
                   <span class="forum-sections-branch-description-container" id='branchDescriptionLabel${branch.id}'>
                     <c:out value="${branch.description}"/>
@@ -154,7 +163,7 @@
                 </td>
               </c:if>
             </tr>
-          </jtalks:hasPermission>
+          </c:if>
         </c:forEach>
         <c:if test="${sessionScope.adminMode == true}">
           <tr>

@@ -26,6 +26,7 @@ import org.apache.commons.lang.Validate;
 //import org.jtalks.common.model.entity.User;
 import org.jtalks.common.model.dao.GroupDao;
 import org.jtalks.common.model.entity.Group;
+import org.jtalks.common.model.entity.User;
 import org.jtalks.common.model.permissions.BranchPermission;
 import org.jtalks.common.model.permissions.GeneralPermission;
 import org.jtalks.common.model.permissions.ProfilePermission;
@@ -105,16 +106,33 @@ public class AclGroupPermissionEvaluator implements PermissionEvaluator {
     }
 
     /**
-     * TODO In runtime authentication object contains clear user password (not the hashed one).
-     * May be potential security issue.
-     * <p/>
+     * TODO In runtime authentication object contains clear user password (not the hashed one). May be potential security issue.
      * {@inheritDoc}
+     * @param authentication user
+     * @param targetId concrete object permission is required for
+     * @param targetType type of object permission is required for
+     * @param permission required permission
+     * @return true if permission is granted, false otherwise
      */
     @Override
     public boolean hasPermission(Authentication authentication, Serializable targetId,
                                  String targetType, Object permission) {
-        boolean result = false;
-        Long id = parseTargetId(targetId);
+
+        if (authentication.getDetails() instanceof User) {
+            User user = (User) authentication.getDetails();
+            boolean userContainsAdminGroup = false;
+            for (Group group : user.getGroups()) {
+                if (AdministrationGroup.ADMIN.getName().equals(group.getName())) {
+                    userContainsAdminGroup = true;
+                    break;
+                }
+            }
+            if (userContainsAdminGroup) {
+                return true; // allow all permissions for Administrators
+            }
+        }
+        boolean result = false; // suppose user has no required permission
+        Long id = parseTargetId(targetId); // convert id to long
 
         ObjectIdentity objectIdentity = aclUtil.createIdentity(id, targetType);
         Permission jtalksPermission;
