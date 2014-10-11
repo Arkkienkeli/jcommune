@@ -72,7 +72,10 @@
     </c:if>
 
     <c:forEach var="section" items="${sectionList}">
-      <jtalks:isSectionVisible section="${section}">
+      <%-- Does we must display this section? --%>
+      <jtalks:isSectionVisible section="${section}"> <%-- Section will be visible if we are in adminMode or if
+                                                          there is at least one visible branch --%>
+        <%-- Section header. --%>
         <tr>
           <td colspan="${colspanOfSectionName}" class="table-title">
             <h2 class="h-nostyle">
@@ -81,15 +84,7 @@
           </td>
         </tr>
         <c:forEach var="branch" items="${section.branches}" varStatus="i">
-
-          <c:set var="showThisBranch" value="true" />
-          <c:if test="${sessionScope.adminMode != true}">
-            <c:set var="showThisBranch" value="false" />
             <jtalks:hasPermission targetId='${branch.id}' targetType='BRANCH' permission='BranchPermission.VIEW_TOPICS'>
-              <c:set var="showThisBranch" value="true" />
-            </jtalks:hasPermission>
-          </c:if>
-          <c:if test="${showThisBranch == true}" >
             <tr>
                 <%--TODO: fix in milstone 2--%>
                 <%--<sec:authorize access="isAuthenticated()">--%>
@@ -163,7 +158,7 @@
                 </td>
               </c:if>
             </tr>
-          </c:if>
+          </jtalks:hasPermission>
         </c:forEach>
         <c:if test="${sessionScope.adminMode == true}">
           <tr>

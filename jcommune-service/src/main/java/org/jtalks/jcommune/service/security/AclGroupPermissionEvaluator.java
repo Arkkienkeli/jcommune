@@ -118,8 +118,8 @@ public class AclGroupPermissionEvaluator implements PermissionEvaluator {
     public boolean hasPermission(Authentication authentication, Serializable targetId,
                                  String targetType, Object permission) {
 
-        if (authentication.getDetails() instanceof User) {
-            User user = (User) authentication.getDetails();
+        if (authentication.getPrincipal() instanceof User) {
+            User user = (User) authentication.getPrincipal();
             boolean userContainsAdminGroup = false;
             for (Group group : user.getGroups()) {
                 if (AdministrationGroup.ADMIN.getName().equals(group.getName())) {
